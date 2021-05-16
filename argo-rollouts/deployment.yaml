@@ -100,7 +100,7 @@ spec:
   template:
     metadata:
       labels:
-        /name: argo-rollout-sample
+        name: argo-rollout-sample
     spec:
       containers:
       - name: argo-rollout-sample
