@@ -104,7 +104,7 @@ spec:
     spec:
       containers:
       - name: argo-rollout-sample
-        image: leonardosimoura/argo-rollouts-sample:1.0.1
+        image: leonardosimoura/argo-rollouts-sample:1.0.2
         imagePullPolicy: Always
         ports:
         - name: http
