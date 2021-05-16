@@ -18,7 +18,7 @@ namespace argo_rollouts_sample.Controllers
             {
                 service,
                 ok = true,
-                successPercent = 0.97
+                successPercent = 0.35
             });
         }
     }
