@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-rollout-sample-service-stable
+spec:
+  selector:
+    name: argo-rollout-sample
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      name: http
+    - protocol: TCP
+      port: 443
+      name: https
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: argo-rollout-sample-service-preview
+spec:
+  selector:
+    name: argo-rollout-sample
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      name: http
+    - protocol: TCP
+      port: 443
+      name: https
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argo-rollout-sample-ingress
+spec:
+  rules:
+  - host: $IP.nip.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: argo-rollout-sample-service-stable
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate
+spec:
+  args:
+  - name: service-name
+    value: ""
+  metrics:
+  - name: webmetric
+    interval: 5s
+    initialDelay: 10s
+    successCondition: "result.ok && result.successPercent >= 0.90"
+    failureLimit: 3
+    provider:
+      web:
+        url: "http://$IP.nip.io/api/v1/measurement?service={{args.service-name}}"
+        jsonPath: "{$}"

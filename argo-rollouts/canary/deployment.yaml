@@ -1,0 +1,48 @@
+﻿apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: argo-rollout-sample
+spec:
+  replicas: 10
+  strategy:
+    canary:
+      analysis:
+        templates:
+        - templateName: success-rate
+        startingStep: 1
+        args:
+        - name: service-name
+          value: argo-rollout-sample-service-preview
+      canaryService: argo-rollout-sample-service-preview
+      stableService: argo-rollout-sample-service-stable
+      trafficRouting:
+        nginx:
+          stableIngress: argo-rollout-sample-ingress
+      steps:
+      - setWeight: 20
+      - pause: {duration: 1m}
+      - setWeight: 40
+      - pause: {duration: 1m}
+      - setWeight: 60
+      - pause: {duration: 1m}
+      - setWeight: 80
+      - pause: {duration: 1m}
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      name: argo-rollout-sample
+  template:
+    metadata:
+      labels:
+        name: argo-rollout-sample
+    spec:
+      containers:
+      - name: argo-rollout-sample
+        image: leonardosimoura/argo-rollouts-sample:1.0.0
+        ports:
+        - name: http
+          containerPort: 80
+          protocol: TCP
+        - name: https
+          containerPort: 443
+          protocol: TCP
